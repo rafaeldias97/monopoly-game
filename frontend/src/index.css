@@ -28,6 +28,51 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Barra superior roxa para iOS PWA */
+#pwa-status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background-color: #8B5CF6;
+  z-index: 10000;
+  display: none;
+  pointer-events: none;
+}
+
+/* Mostrar barra quando em modo standalone (PWA instalado) */
+@media (display-mode: standalone) {
+  #pwa-status-bar {
+    display: block;
+    height: max(env(safe-area-inset-top), 20px);
+  }
+  
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* iOS Safari - garantir que apareça quando instalado */
+@supports (-webkit-touch-callout: none) {
+  /* Detectar iOS standalone */
+  body {
+    padding-top: max(env(safe-area-inset-top), 20px);
+  }
+  
+  #pwa-status-bar {
+    display: block;
+    height: max(env(safe-area-inset-top), 20px);
+  }
+  
+  /* Quando está em modo standalone no iOS */
+  @media (display-mode: standalone) {
+    #pwa-status-bar {
+      height: max(env(safe-area-inset-top), 20px);
+    }
+  }
+}
+
 #root {
   width: 100%;
   min-height: 100vh;

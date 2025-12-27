@@ -20,7 +20,37 @@
     <title>Monopoly</title>
   </head>
   <body>
+    <!-- Barra superior roxa para iOS PWA -->
+    <div id="pwa-status-bar"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Garantir que a barra superior apareça no iOS quando instalado como PWA
+      (function () {
+        const statusBar = document.getElementById("pwa-status-bar");
+        if (!statusBar) return;
+
+        // Verificar se está em modo standalone
+        const isStandalone =
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true;
+
+        // Verificar se é iOS
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isStandalone || isIOS) {
+          statusBar.style.display = "block";
+          const safeAreaTop =
+            getComputedStyle(document.documentElement).getPropertyValue(
+              "env(safe-area-inset-top)"
+            ) || "20px";
+          statusBar.style.height = `max(${safeAreaTop}, 20px)`;
+
+          // Adicionar padding ao body
+          document.body.style.paddingTop = `max(${safeAreaTop}, 20px)`;
+        }
+      })();
+    </script>
   </body>
 </html>
