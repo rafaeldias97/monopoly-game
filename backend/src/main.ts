@@ -20,10 +20,10 @@ async function bootstrap() {
   // Opcional: só serve se o diretório existir
   const frontendPath = join(__dirname, '..', 'frontend-dist');
   if (fs.existsSync(frontendPath)) {
-    app.useStaticAssets(frontendPath, {
-      index: false,
-      prefix: '/',
-    });
+  app.useStaticAssets(frontendPath, {
+    index: false,
+    prefix: '/',
+  });
   }
 
   const config = new DocumentBuilder()
@@ -41,18 +41,18 @@ async function bootstrap() {
   // Deve vir DEPOIS de todas as outras rotas (Swagger, API, etc)
   // Só adiciona se o frontend existir
   if (fs.existsSync(frontendPath)) {
-    const expressApp = app.getHttpAdapter().getInstance();
-    expressApp.get('*', (req, res, next) => {
-      // Não servir index.html para rotas da API
-      if (req.path.startsWith('/api')) {
-        return next();
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('*', (req, res, next) => {
+    // Não servir index.html para rotas da API
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(join(frontendPath, 'index.html'), (err) => {
+      if (err) {
+        next(err);
       }
-      res.sendFile(join(frontendPath, 'index.html'), (err) => {
-        if (err) {
-          next(err);
-        }
-      });
     });
+  });
   }
 
   const port = process.env.PORT ?? 3000;
