@@ -32,6 +32,11 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         skipWaiting: false, // Não atualizar automaticamente, esperar confirmação do usuário
         clientsClaim: false, // Não assumir controle imediatamente
+        // Não fazer cache do HTML para evitar problemas com localStorage
+        navigateFallback: null,
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+        // Não limpar caches antigos automaticamente (preserva localStorage)
+        cleanupOutdatedCaches: false,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/,
