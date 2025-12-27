@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #6366f1;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -35,7 +35,7 @@ body {
   left: 0;
   right: 0;
   height: env(safe-area-inset-top, 20px);
-  background-color: #6366f1;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
   z-index: 99999;
   display: none;
   pointer-events: none;
@@ -47,16 +47,16 @@ body {
   #pwa-status-bar {
     display: block !important;
     height: max(env(safe-area-inset-top), 20px) !important;
-    background-color: #6366f1 !important;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6) !important;
   }
   
   body {
-    padding-top: max(env(safe-area-inset-top), 20px);
-    background-color: #6366f1;
+    /* Não adicionar padding-top no body, deixar o #root fazer isso */
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
   }
   
   html {
-    background-color: #6366f1;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
   }
 }
 
@@ -64,11 +64,11 @@ body {
 @supports (-webkit-touch-callout: none) {
   /* Quando está em modo standalone no iOS */
   body:has(#root) {
-    background-color: #6366f1;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
   }
   
   html {
-    background-color: #6366f1;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
   }
   
   /* Forçar barra roxa no iOS standalone */
@@ -76,7 +76,7 @@ body {
     #pwa-status-bar {
       display: block !important;
       height: max(env(safe-area-inset-top), 20px) !important;
-      background-color: #6366f1 !important;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6) !important;
     }
   }
 }
@@ -84,6 +84,22 @@ body {
 #root {
   width: 100%;
   min-height: 100vh;
+  position: relative;
+}
+
+/* Compensar padding quando barra de status estiver visível */
+@media (display-mode: standalone) {
+  #root {
+    padding-top: max(env(safe-area-inset-top), 20px);
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    #root {
+      padding-top: max(env(safe-area-inset-top), 20px);
+    }
+  }
 }
 
 /* Melhorias para mobile */

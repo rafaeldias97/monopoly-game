@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'Monopoly',
         short_name: 'Monopoly',
         description: 'Jogo de Monopoly',
-        theme_color: '#8B5CF6', // Roxo estilo Nubank
-        background_color: '#8B5CF6', // Roxo estilo Nubank
+        theme_color: '#6366F1', // Roxo estilo Nubank
+        background_color: '#6366F1', // Roxo estilo Nubank
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
