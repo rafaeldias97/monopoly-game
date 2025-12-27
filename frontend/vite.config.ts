@@ -56,12 +56,26 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         skipWaiting: false, // Não atualizar automaticamente, esperar confirmação do usuário
         clientsClaim: false, // Não assumir controle imediatamente
-        // Não fazer cache do HTML para evitar problemas com localStorage
-        navigateFallback: null,
-        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+        // Fallback para index.html para suportar rotas SPA (React Router)
+        // Isso é essencial para que rotas como /salas funcionem ao atualizar a página
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^(?!\/_).*/], // Permitir todas as rotas exceto as que começam com _
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/, /^\/api/],
         // Não limpar caches antigos automaticamente (preserva localStorage)
         cleanupOutdatedCaches: false,
         runtimeCaching: [
+          {
+            // Cache do HTML com NetworkFirst para sempre pegar versão atualizada
+            urlPattern: /^https?:\/\/.*\/index\.html$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: {
+                maxEntries: 1,
+                maxAgeSeconds: 0, // Sempre verificar rede primeiro
+              },
+            },
+          },
           {
             urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
@@ -79,6 +93,8 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module',
+        // Em desenvolvimento, o Service Worker pode interferir com o fallback do Vite
+        // Mas mantemos habilitado para testar o PWA
       },
     })
   ],
