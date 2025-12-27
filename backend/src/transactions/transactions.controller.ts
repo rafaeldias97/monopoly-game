@@ -20,6 +20,7 @@ import { CreateTransactionDto } from './create-transaction.dto';
 import { StartGameDto } from './start-game.dto';
 import { TransferMoneyDto } from './transfer-money.dto';
 import { ReceiveFromBankDto } from './receive-from-bank.dto';
+import { TransferToBankDto } from './transfer-to-bank.dto';
 import { User } from '../users/users';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -235,5 +236,25 @@ export class TransactionsController {
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<Transaction> {
     return this.transactionsService.receiveFromBank(user.id, dto);
+  }
+
+  @Post('transfer-to-bank')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Transfer money to bank' })
+  @ApiResponse({
+    status: 201,
+    description: 'Money transferred to bank successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request or insufficient balance' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Game or User not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBody({ type: TransferToBankDto })
+  async transferToBank(
+    @Body() dto: TransferToBankDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<Transaction> {
+    return this.transactionsService.transferToBank(user.id, dto);
   }
 }

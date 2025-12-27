@@ -251,6 +251,21 @@ class ApiService {
     return response.json();
   }
 
+  async transferToBank(gameId: string, amount: number, description?: string): Promise<Transaction> {
+    const response = await fetch(`${API_BASE_URL}/transactions/transfer-to-bank`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ gameId, amount, description }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Erro ao transferir para o banco' }));
+      throw new Error(error.message || 'Erro ao transferir para o banco');
+    }
+
+    return response.json();
+  }
+
   async getGameTransactions(gameId: string): Promise<Transaction[]> {
     const response = await fetch(`${API_BASE_URL}/transactions/game/${gameId}`, {
       method: 'GET',

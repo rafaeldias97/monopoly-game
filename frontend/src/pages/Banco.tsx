@@ -31,6 +31,7 @@ export default function Banco() {
     toUserId: "",
     amount: "",
     description: "",
+    isToBank: false,
   });
   const [loanData, setLoanData] = useState({
     amount: "",
@@ -142,8 +143,14 @@ export default function Banco() {
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!id || !transferData.toUserId || !transferData.amount) {
+    if (!id || !transferData.amount) {
       setError("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    // Se não for para o banco, precisa selecionar um usuário
+    if (!transferData.isToBank && !transferData.toUserId) {
+      setError("Selecione um destinatário");
       return;
     }
 
@@ -162,14 +169,29 @@ export default function Banco() {
     setError(null);
 
     try {
-      await apiService.transferMoney(
-        id,
-        transferData.toUserId,
-        amount,
-        transferData.description || undefined
-      );
+      if (transferData.isToBank) {
+        // Transferir para o banco
+        await apiService.transferToBank(
+          id,
+          amount,
+          transferData.description || undefined
+        );
+      } else {
+        // Transferir para outro jogador
+        await apiService.transferMoney(
+          id,
+          transferData.toUserId,
+          amount,
+          transferData.description || undefined
+        );
+      }
       setShowTransferModal(false);
-      setTransferData({ toUserId: "", amount: "", description: "" });
+      setTransferData({
+        toUserId: "",
+        amount: "",
+        description: "",
+        isToBank: false,
+      });
       await loadGameData();
     } catch (err) {
       setError(
@@ -444,17 +466,27 @@ export default function Banco() {
               <div className="form-group">
                 <label>Para quem?</label>
                 <select
-                  value={transferData.toUserId}
-                  onChange={(e) =>
-                    setTransferData({
-                      ...transferData,
-                      toUserId: e.target.value,
-                    })
-                  }
+                  value={transferData.isToBank ? "bank" : transferData.toUserId}
+                  onChange={(e) => {
+                    if (e.target.value === "bank") {
+                      setTransferData({
+                        ...transferData,
+                        isToBank: true,
+                        toUserId: "",
+                      });
+                    } else {
+                      setTransferData({
+                        ...transferData,
+                        isToBank: false,
+                        toUserId: e.target.value,
+                      });
+                    }
+                  }}
                   required
                   disabled={processing}
                 >
-                  <option value="">Selecione um jogador</option>
+                  <option value="">Selecione um destinatário</option>
+                  <option value="bank">🏦 Banco</option>
                   {otherPlayers.map((player) => (
                     <option key={player.userId} value={player.userId}>
                       {player.user?.nickname || "Usuário"}

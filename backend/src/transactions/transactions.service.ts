@@ -14,6 +14,7 @@ import { CreateTransactionDto } from './create-transaction.dto';
 import { StartGameDto } from './start-game.dto';
 import { TransferMoneyDto } from './transfer-money.dto';
 import { ReceiveFromBankDto } from './receive-from-bank.dto';
+import { TransferToBankDto } from './transfer-to-bank.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -356,7 +357,9 @@ export class TransactionsService {
 
     // Verify sender has not declared bankruptcy
     if (fromGameUser.finishedAt) {
-      throw new BadRequestException('User has declared bankruptcy and cannot perform transactions');
+      throw new BadRequestException(
+        'User has declared bankruptcy and cannot perform transactions',
+      );
     }
 
     const toGameUser = await this.gameUsersRepository.findOne({
@@ -452,7 +455,9 @@ export class TransactionsService {
 
     // Verify user has not declared bankruptcy
     if (gameUser.finishedAt) {
-      throw new BadRequestException('User has declared bankruptcy and cannot receive loans');
+      throw new BadRequestException(
+        'User has declared bankruptcy and cannot receive loans',
+      );
     }
 
     // Create positive transaction from bank
@@ -461,6 +466,69 @@ export class TransactionsService {
       gameId: dto.gameId,
       description: dto.description || 'Money from bank',
       amount: dto.amount,
+      status: TransactionStatus.PAID,
+    });
+
+    const savedTransaction =
+      await this.transactionsRepository.save(transaction);
+
+    // Check and update finished status
+    await this.checkAndUpdateUserFinishedStatus(userId, dto.gameId);
+
+    return savedTransaction;
+  }
+
+  async transferToBank(
+    userId: string,
+    dto: TransferToBankDto,
+  ): Promise<Transaction> {
+    if (dto.amount <= 0) {
+      throw new BadRequestException('Amount must be greater than 0');
+    }
+
+    // Verify game exists
+    const game = await this.gamesRepository.findOne({
+      where: { id: dto.gameId },
+    });
+    if (!game) {
+      throw new NotFoundException(`Game with ID ${dto.gameId} not found`);
+    }
+
+    // Verify user exists
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    // Verify user is in the game
+    const gameUser = await this.gameUsersRepository.findOne({
+      where: { gameId: dto.gameId, userId: userId },
+    });
+    if (!gameUser) {
+      throw new BadRequestException('User is not in this game');
+    }
+
+    // Verify user has not declared bankruptcy
+    if (gameUser.finishedAt) {
+      throw new BadRequestException(
+        'User has declared bankruptcy and cannot transfer money to bank',
+      );
+    }
+
+    // Check if user has enough balance
+    const userBalance = await this.calculateUserBalance(userId, dto.gameId);
+    if (userBalance < dto.amount) {
+      throw new BadRequestException('Insufficient balance');
+    }
+
+    // Create negative transaction (money goes to bank, no receiver transaction needed)
+    const transaction = this.transactionsRepository.create({
+      userId: userId,
+      gameId: dto.gameId,
+      description: dto.description || 'Transfer to bank',
+      amount: -dto.amount,
       status: TransactionStatus.PAID,
     });
 
