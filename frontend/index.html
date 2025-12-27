@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#8B5CF6" />
     <meta name="description" content="Jogo de Monopoly" />
@@ -25,7 +25,7 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Garantir que a barra superior apareça no iOS quando instalado como PWA
+      // Garantir que a barra superior apareça roxa no iOS quando instalado como PWA
       (function () {
         const statusBar = document.getElementById("pwa-status-bar");
         if (!statusBar) return;
@@ -39,16 +39,38 @@
         const isIOS =
           /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        if (isStandalone || isIOS) {
+        // Se estiver instalado como PWA (standalone) ou for iOS, mostrar barra roxa
+        if (isStandalone || (isIOS && window.navigator.standalone)) {
+          // Forçar exibição da barra
           statusBar.style.display = "block";
-          const safeAreaTop =
-            getComputedStyle(document.documentElement).getPropertyValue(
-              "env(safe-area-inset-top)"
-            ) || "20px";
-          statusBar.style.height = `max(${safeAreaTop}, 20px)`;
+          statusBar.style.backgroundColor = "#8B5CF6";
+          statusBar.style.position = "fixed";
+          statusBar.style.top = "0";
+          statusBar.style.left = "0";
+          statusBar.style.right = "0";
+          statusBar.style.zIndex = "99999";
+          statusBar.style.pointerEvents = "none";
 
-          // Adicionar padding ao body
-          document.body.style.paddingTop = `max(${safeAreaTop}, 20px)`;
+          // Calcular altura da safe area
+          const safeAreaTop = window.visualViewport
+            ? Math.max(
+                parseInt(
+                  getComputedStyle(document.documentElement).getPropertyValue(
+                    "env(safe-area-inset-top)"
+                  ) || "0"
+                ),
+                20
+              )
+            : 20;
+
+          statusBar.style.height = safeAreaTop + "px";
+
+          // Adicionar padding ao body para não sobrepor conteúdo
+          document.body.style.paddingTop = safeAreaTop + "px";
+          document.body.style.backgroundColor = "#8B5CF6";
+
+          // Garantir que o html também tenha fundo roxo na área superior
+          document.documentElement.style.backgroundColor = "#8B5CF6";
         }
       })();
     </script>

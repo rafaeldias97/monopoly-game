@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #8B5CF6;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -34,41 +34,49 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: env(safe-area-inset-top, 0px);
+  height: env(safe-area-inset-top, 20px);
   background-color: #8B5CF6;
-  z-index: 10000;
+  z-index: 99999;
   display: none;
   pointer-events: none;
+  width: 100%;
 }
 
 /* Mostrar barra quando em modo standalone (PWA instalado) */
 @media (display-mode: standalone) {
   #pwa-status-bar {
-    display: block;
-    height: max(env(safe-area-inset-top), 20px);
+    display: block !important;
+    height: max(env(safe-area-inset-top), 20px) !important;
+    background-color: #8B5CF6 !important;
   }
   
   body {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: max(env(safe-area-inset-top), 20px);
+    background-color: #8B5CF6;
+  }
+  
+  html {
+    background-color: #8B5CF6;
   }
 }
 
 /* iOS Safari - garantir que apareça quando instalado */
 @supports (-webkit-touch-callout: none) {
-  /* Detectar iOS standalone */
-  body {
-    padding-top: max(env(safe-area-inset-top), 20px);
-  }
-  
-  #pwa-status-bar {
-    display: block;
-    height: max(env(safe-area-inset-top), 20px);
-  }
-  
   /* Quando está em modo standalone no iOS */
+  body:has(#root) {
+    background-color: #8B5CF6;
+  }
+  
+  html {
+    background-color: #8B5CF6;
+  }
+  
+  /* Forçar barra roxa no iOS standalone */
   @media (display-mode: standalone) {
     #pwa-status-bar {
-      height: max(env(safe-area-inset-top), 20px);
+      display: block !important;
+      height: max(env(safe-area-inset-top), 20px) !important;
+      background-color: #8B5CF6 !important;
     }
   }
 }
