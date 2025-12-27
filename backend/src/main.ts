@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,11 +17,14 @@ async function bootstrap() {
   });
 
   // Servir arquivos estáticos do frontend (antes do Swagger)
+  // Opcional: só serve se o diretório existir
   const frontendPath = join(__dirname, '..', 'frontend-dist');
-  app.useStaticAssets(frontendPath, {
-    index: false,
-    prefix: '/',
-  });
+  if (fs.existsSync(frontendPath)) {
+    app.useStaticAssets(frontendPath, {
+      index: false,
+      prefix: '/',
+    });
+  }
 
   const config = new DocumentBuilder()
     .setTitle('API Monopoly Game')
@@ -35,19 +39,29 @@ async function bootstrap() {
 
   // Rota catch-all para servir o index.html do frontend (SPA)
   // Deve vir DEPOIS de todas as outras rotas (Swagger, API, etc)
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.get('*', (req, res, next) => {
-    // Não servir index.html para rotas da API
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-    res.sendFile(join(frontendPath, 'index.html'), (err) => {
-      if (err) {
-        next(err);
+  // Só adiciona se o frontend existir
+  if (fs.existsSync(frontendPath)) {
+    const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.get('*', (req, res, next) => {
+      // Não servir index.html para rotas da API
+      if (req.path.startsWith('/api')) {
+        return next();
       }
+      res.sendFile(join(frontendPath, 'index.html'), (err) => {
+        if (err) {
+          next(err);
+        }
+      });
     });
-  });
+  }
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Swagger documentation: http://localhost:${port}/api`);
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Error starting application:', error);
+  process.exit(1);
+});
