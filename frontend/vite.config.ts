@@ -8,10 +8,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'mask-icon.svg', 'icon.svg'],
+      includeAssets: ['favicon.ico', 'mask-icon.svg', 'icon.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Monopoly Pay',
-        short_name: 'MP',
+        short_name: 'MPay',
         description: 'Jogo de Monopoly',
         theme_color: '#6366F1', // Roxo estilo Nubank
         background_color: '#6366F1', // Roxo estilo Nubank
@@ -36,6 +36,18 @@ export default defineConfig({
             src: 'icon.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
