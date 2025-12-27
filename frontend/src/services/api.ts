@@ -1,3 +1,5 @@
+import { storage } from './storage';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export interface User {
@@ -69,7 +71,8 @@ export interface Transaction {
 
 class ApiService {
   private getToken(): string | null {
-    return localStorage.getItem('token');
+    // Usar o serviço de storage que tem sistema de backup
+    return storage.getToken();
   }
 
   private getHeaders(includeAuth = false): HeadersInit {

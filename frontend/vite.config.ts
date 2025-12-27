@@ -8,10 +8,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'mask-icon.svg'],
+      includeAssets: ['favicon.ico', 'mask-icon.svg', 'icon.svg'],
       manifest: {
-        name: 'Monopoly',
-        short_name: 'Monopoly',
+        name: 'Monopoly Pay',
+        short_name: 'MP',
         description: 'Jogo de Monopoly',
         theme_color: '#6366F1', // Roxo estilo Nubank
         background_color: '#6366F1', // Roxo estilo Nubank
@@ -21,8 +21,20 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'vite.svg',
+            src: 'icon.svg',
             sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'icon.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'icon.svg',
+            sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           }

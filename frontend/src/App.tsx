@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Login from "./pages/Login";
 import Salas from "./pages/Salas";
 import SalaDetalhes from "./pages/SalaDetalhes";
@@ -14,6 +15,26 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  // Restaurar token ao inicializar o app
+  useEffect(() => {
+    // Forçar restauração do backup na inicialização
+    const token = storage.getToken();
+    const user = storage.getUser();
+
+    if (!token || !user) {
+      // Tentar restaurar do backup
+      console.log(
+        "Token ou usuário não encontrado, tentando restaurar do backup..."
+      );
+      // O storage.getToken() já faz a restauração automaticamente
+      // Mas vamos forçar uma verificação
+      const restoredToken = storage.getToken();
+      if (restoredToken) {
+        console.log("Token restaurado com sucesso!");
+      }
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <UpdateButton />
