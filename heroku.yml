@@ -1,0 +1,8 @@
+build:
+  docker:
+    web:
+      dockerfile: Dockerfile
+      context: .
+
+run:
+  web: pm2-runtime start ecosystem.config.js
