@@ -22,6 +22,7 @@ import { CleanupModule } from './cleanup/cleanup.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
     ScheduleModule.forRoot(),
     AuthModule,

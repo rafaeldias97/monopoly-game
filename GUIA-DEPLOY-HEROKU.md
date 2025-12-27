@@ -117,31 +117,16 @@ heroku buildpacks:add heroku/nodejs
 heroku buildpacks
 ```
 
-## 🗄️ Passo 6: Configurar Banco de Dados PostgreSQL
-
-### 6.1. Adicionar addon do PostgreSQL (gratuito)
+## ⚙️ Passo 6: Configurar Variáveis de Ambiente
 
 ```bash
-heroku addons:create heroku-postgresql:mini
-```
-
-**Nota:** O plano `mini` é gratuito, mas tem limitações. Para produção, considere um plano pago.
-
-### 6.2. Verificar variáveis do banco
-
-```bash
-# Ver todas as variáveis de ambiente
-heroku config
-
-# O Heroku automaticamente cria estas variáveis quando você adiciona o PostgreSQL:
-# DATABASE_URL (já configurada automaticamente)
-```
-
-## ⚙️ Passo 7: Configurar Variáveis de Ambiente
-
-```bash
-# Configurar variáveis do backend
+# Configurar variáveis do backend com seu banco de dados externo
 heroku config:set NODE_ENV=production
+heroku config:set DB_HOST=seu-host-do-banco
+heroku config:set DB_PORT=5432
+heroku config:set DB_USERNAME=seu-usuario
+heroku config:set DB_PASSWORD=sua-senha
+heroku config:set DB_DATABASE=nome-do-banco
 heroku config:set DB_SYNCHRONIZE=true
 heroku config:set DB_SSL=true
 heroku config:set JWT_SECRET=$(openssl rand -base64 32)
@@ -154,37 +139,21 @@ heroku config:set VITE_API_URL=https://seu-app-monopoly.herokuapp.com
 heroku config
 ```
 
-### 7.1. Configurar banco de dados manualmente (se necessário)
+**⚠️ IMPORTANTE:** Substitua os valores acima pelos dados reais do seu banco de dados hospedado.
 
-Se você quiser usar um banco externo ou configurar manualmente:
+## 📝 Passo 7: Verificar Configuração do Backend
 
-```bash
-heroku config:set DB_HOST=seu-host
-heroku config:set DB_PORT=5432
-heroku config:set DB_USERNAME=seu-usuario
-heroku config:set DB_PASSWORD=sua-senha
-heroku config:set DB_DATABASE=seu-banco
-```
+O backend já está configurado para usar as variáveis de ambiente `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` que você configurou acima.
 
-**Mas se você usou o addon do PostgreSQL (Passo 6.1), o Heroku já configura tudo automaticamente via `DATABASE_URL`.**
+## 🐳 Passo 8: Deploy com Docker
 
-## 📝 Passo 8: Ajustar Backend para usar DATABASE_URL
-
-O Heroku fornece a URL do banco via `DATABASE_URL`. Você precisa ajustar o backend para usar isso.
-
-**Verificar se o backend já está configurado para usar DATABASE_URL:**
-
-Verifique o arquivo `backend/src/app.module.ts`. Se não estiver usando `DATABASE_URL`, você precisará ajustar.
-
-## 🐳 Passo 9: Deploy com Docker
-
-### 9.1. Habilitar Container Registry
+### 8.1. Habilitar Container Registry
 
 ```bash
 heroku container:login
 ```
 
-### 9.2. Fazer build e push da imagem
+### 8.2. Fazer build e push da imagem
 
 ```bash
 # Build e push da imagem Docker
@@ -194,7 +163,7 @@ heroku container:push web
 heroku container:release web
 ```
 
-### 9.3. Ver logs
+### 8.3. Ver logs
 
 ```bash
 # Ver logs em tempo real
@@ -204,7 +173,7 @@ heroku logs --tail
 heroku logs -n 100
 ```
 
-## 🌐 Passo 10: Verificar Deploy
+## 🌐 Passo 9: Verificar Deploy
 
 ```bash
 # Abrir app no navegador
@@ -217,7 +186,7 @@ heroku ps
 heroku info
 ```
 
-## 🔍 Passo 11: Troubleshooting
+## 🔍 Passo 10: Troubleshooting
 
 ### Ver logs de erro
 
@@ -249,7 +218,7 @@ heroku run bash
 heroku pg:info
 ```
 
-## 📊 Passo 12: Monitoramento
+## 📊 Passo 11: Monitoramento
 
 ### Ver uso de recursos
 
@@ -261,7 +230,7 @@ heroku ps
 
 Acesse: https://dashboard.heroku.com/apps/seu-app-monopoly/metrics
 
-## 🔄 Atualizar Deploy (quando fizer mudanças)
+## 🔄 Passo 12: Atualizar Deploy (quando fizer mudanças)
 
 ```bash
 # 1. Fazer commit das mudanças
@@ -285,14 +254,16 @@ heroku login
 # 2. Criar app
 heroku create seu-app-monopoly
 
-# 3. Adicionar PostgreSQL
-heroku addons:create heroku-postgresql:mini
-
-# 4. Configurar variáveis
-heroku config:set JWT_SECRET=$(openssl rand -base64 32)
-heroku config:set VITE_API_URL=https://seu-app-monopoly.herokuapp.com
+# 3. Configurar variáveis de ambiente (com seu banco externo)
+heroku config:set DB_HOST=seu-host-do-banco
+heroku config:set DB_PORT=5432
+heroku config:set DB_USERNAME=seu-usuario
+heroku config:set DB_PASSWORD=sua-senha
+heroku config:set DB_DATABASE=nome-do-banco
 heroku config:set DB_SYNCHRONIZE=true
 heroku config:set DB_SSL=true
+heroku config:set JWT_SECRET=$(openssl rand -base64 32)
+heroku config:set VITE_API_URL=https://seu-app-monopoly.herokuapp.com
 
 # 5. Login no Container Registry
 heroku container:login
@@ -305,18 +276,19 @@ heroku container:release web
 heroku logs --tail
 ```
 
-## ⚠️ Importante: Ajustar Backend para DATABASE_URL
+## ⚠️ Importante: Configuração do Banco de Dados
 
-O Heroku fornece o banco via `DATABASE_URL`. Você precisa verificar se o `backend/src/app.module.ts` está configurado para usar isso.
+O backend está configurado para usar as variáveis de ambiente:
 
-Se não estiver, você pode precisar instalar `pg-connection-string` e fazer parse da URL:
+- `DB_HOST` - Host do seu banco de dados
+- `DB_PORT` - Porta (geralmente 5432 para PostgreSQL)
+- `DB_USERNAME` - Usuário do banco
+- `DB_PASSWORD` - Senha do banco
+- `DB_DATABASE` - Nome do banco de dados
+- `DB_SYNCHRONIZE` - true/false (sincronizar schema)
+- `DB_SSL` - true/false (usar SSL)
 
-```bash
-cd backend
-npm install pg-connection-string
-```
-
-E ajustar o `app.module.ts` para fazer parse da `DATABASE_URL`.
+Certifique-se de que seu banco de dados hospedado permite conexões externas e que você configurou as variáveis corretamente no Heroku.
 
 ## 🆘 Precisa de Ajuda?
 

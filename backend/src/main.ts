@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Habilitar CORS
   app.enableCors({
@@ -11,6 +13,13 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+  });
+
+  // Servir arquivos estáticos do frontend (antes do Swagger)
+  const frontendPath = join(__dirname, '..', 'frontend-dist');
+  app.useStaticAssets(frontendPath, {
+    index: false,
+    prefix: '/',
   });
 
   const config = new DocumentBuilder()
@@ -23,6 +32,21 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  // Rota catch-all para servir o index.html do frontend (SPA)
+  // Deve vir DEPOIS de todas as outras rotas (Swagger, API, etc)
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('*', (req, res, next) => {
+    // Não servir index.html para rotas da API
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(join(frontendPath, 'index.html'), (err) => {
+      if (err) {
+        next(err);
+      }
+    });
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

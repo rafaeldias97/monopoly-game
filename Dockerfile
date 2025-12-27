@@ -1,5 +1,5 @@
 # Multi-stage build for PM2 with both apps
-FROM node:22-alpine AS base
+FROM --platform=linux/amd64 node:22-alpine AS base
 
 # Install PM2 globally
 RUN npm install -g pm2 serve
@@ -47,7 +47,8 @@ COPY --from=backend-builder /app/backend/dist ./backend/dist
 COPY --from=backend-builder /app/backend/package*.json ./backend/
 COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
 
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copy frontend dist para dentro do backend (para servir arquivos estáticos)
+COPY --from=frontend-builder /app/frontend/dist ./backend/frontend-dist
 
 # Copy ecosystem config
 COPY ecosystem.config.js ./

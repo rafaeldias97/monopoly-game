@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM --platform=linux/amd64 node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm run build
 
 # Production stage
-FROM node:22-alpine AS production
+FROM --platform=linux/amd64 node:22-alpine AS production
 
 WORKDIR /app
 
