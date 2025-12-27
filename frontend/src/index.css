@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #8B5CF6;
+  background-color: #6366f1;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -35,7 +35,7 @@ body {
   left: 0;
   right: 0;
   height: env(safe-area-inset-top, 20px);
-  background-color: #8B5CF6;
+  background-color: #6366f1;
   z-index: 99999;
   display: none;
   pointer-events: none;
@@ -47,16 +47,16 @@ body {
   #pwa-status-bar {
     display: block !important;
     height: max(env(safe-area-inset-top), 20px) !important;
-    background-color: #8B5CF6 !important;
+    background-color: #6366f1 !important;
   }
   
   body {
     padding-top: max(env(safe-area-inset-top), 20px);
-    background-color: #8B5CF6;
+    background-color: #6366f1;
   }
   
   html {
-    background-color: #8B5CF6;
+    background-color: #6366f1;
   }
 }
 
@@ -64,11 +64,11 @@ body {
 @supports (-webkit-touch-callout: none) {
   /* Quando está em modo standalone no iOS */
   body:has(#root) {
-    background-color: #8B5CF6;
+    background-color: #6366f1;
   }
   
   html {
-    background-color: #8B5CF6;
+    background-color: #6366f1;
   }
   
   /* Forçar barra roxa no iOS standalone */
@@ -76,7 +76,7 @@ body {
     #pwa-status-bar {
       display: block !important;
       height: max(env(safe-area-inset-top), 20px) !important;
-      background-color: #8B5CF6 !important;
+      background-color: #6366f1 !important;
     }
   }
 }
