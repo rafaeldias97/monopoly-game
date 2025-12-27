@@ -1,2 +1,2 @@
-web: pm2-runtime start ecosystem.config.js
+web: node dist/main.js
 

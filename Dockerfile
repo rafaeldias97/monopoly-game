@@ -1,64 +1,48 @@
-# Multi-stage build for PM2 with both apps
-FROM --platform=linux/amd64 node:22-alpine AS base
-
-# Install PM2 globally
-RUN npm install -g pm2 serve
+# Build stage
+FROM --platform=linux/amd64 node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy ecosystem config
-COPY ecosystem.config.js ./
+# Install pnpm
+RUN npm install -g pnpm
 
-# Backend stage
-FROM base AS backend-builder
-WORKDIR /app/backend
-
+# Copy package files
 COPY backend/package*.json ./
 COPY backend/pnpm-lock.yaml ./
 
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
+# Copy source code
 COPY backend/ .
 
-RUN pnpm run build
-
-# Frontend stage
-FROM base AS frontend-builder
-WORKDIR /app/frontend
-
-COPY frontend/package*.json ./
-COPY frontend/pnpm-lock.yaml ./
-
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
-
-COPY frontend/ .
-
+# Build the application
 RUN pnpm run build
 
 # Production stage
-FROM base AS production
+FROM --platform=linux/amd64 node:22-alpine AS production
 
 WORKDIR /app
 
-# Copy built applications
-COPY --from=backend-builder /app/backend/dist ./backend/dist
-COPY --from=backend-builder /app/backend/package*.json ./backend/
-COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
+# Install pnpm
+RUN npm install -g pnpm
 
-# Copy frontend dist para dentro do backend (para servir arquivos estáticos)
-COPY --from=frontend-builder /app/frontend/dist ./backend/frontend-dist
+# Copy package files
+COPY backend/package*.json ./
+COPY backend/pnpm-lock.yaml ./
 
-# Copy ecosystem config
-COPY ecosystem.config.js ./
+# Install only production dependencies
+RUN pnpm install --prod --frozen-lockfile
 
-# Create logs directory
-RUN mkdir -p logs
+# Copy built application from builder
+COPY --from=builder /app/dist ./dist
 
-# Expose ports
-EXPOSE 3000 3001
+# Expose port
+EXPOSE 3000
 
-# Start with PM2
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
+# Start the application
+CMD ["node", "dist/main.js"]
