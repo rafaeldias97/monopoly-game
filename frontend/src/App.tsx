@@ -5,6 +5,7 @@ import SalaDetalhes from "./pages/SalaDetalhes";
 import Banco from "./pages/Banco";
 import ExtratoPartida from "./pages/ExtratoPartida";
 import { storage } from "./services/storage";
+import UpdateButton from "./components/shared/UpdateButton";
 import "./App.css";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
+      <UpdateButton />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route

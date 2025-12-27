@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'mask-icon.svg'],
       manifest: {
         name: 'Monopoly',
@@ -23,13 +23,34 @@ export default defineConfig({
           {
             src: 'vite.svg',
             sizes: 'any',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-      }
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        skipWaiting: false, // Não atualizar automaticamente, esperar confirmação do usuário
+        clientsClaim: false, // Não assumir controle imediatamente
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
+              },
+            },
+          },
+        ],
+      },
+      // Configurar para detectar atualizações
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
     })
   ],
   server: {
