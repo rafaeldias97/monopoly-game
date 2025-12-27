@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiService } from "../services/api";
 import { storage } from "../services/storage";
@@ -9,6 +9,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Redirecionar para /salas se já houver token
+  useEffect(() => {
+    const token = storage.getToken();
+    const user = storage.getUser();
+    if (token && user) {
+      navigate("/salas", { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
