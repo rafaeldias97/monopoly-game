@@ -56,17 +56,16 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         skipWaiting: false, // Não atualizar automaticamente, esperar confirmação do usuário
         clientsClaim: false, // Não assumir controle imediatamente
-        // Fallback para index.html para suportar rotas SPA (React Router)
-        // Isso é essencial para que rotas como /salas funcionem ao atualizar a página
+        // ESSENCIAL: Fallback para index.html para suportar rotas SPA
+        // Sem isso, o Service Worker retorna 404 ao atualizar páginas em rotas como /salas
         navigateFallback: '/index.html',
-        navigateFallbackAllowlist: [/^(?!\/_).*/], // Permitir todas as rotas exceto as que começam com _
         navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/, /^\/api/],
         // Não limpar caches antigos automaticamente (preserva localStorage)
         cleanupOutdatedCaches: false,
         runtimeCaching: [
           {
-            // Cache do HTML com NetworkFirst para sempre pegar versão atualizada
-            urlPattern: /^https?:\/\/.*\/index\.html$/,
+            // HTML sempre busca da rede primeiro para evitar problemas com localStorage
+            urlPattern: ({ request }) => request.destination === 'document',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'html-cache',
@@ -93,8 +92,6 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module',
-        // Em desenvolvimento, o Service Worker pode interferir com o fallback do Vite
-        // Mas mantemos habilitado para testar o PWA
       },
     })
   ],
